@@ -201,6 +201,12 @@ export const cleanUpDiagnosisArray = (array = disease) => {
       array[i].name.charAt(0).toUpperCase() +
       array[i].name.toLowerCase().slice(1);
 
+    for (let i = 0; i < array[i].symptoms.length; i++) {
+      array[i].symptoms[i] =
+        array[i].symptoms[i].charAt(0).toUpperCase() +
+        array[i].symptoms[i].toLowerCase().slice(1);
+    }
+
     let symptomsSet = new Set(array[i].symptoms);
 
     diseaseObj.symptoms = symptomsSet;
@@ -250,7 +256,14 @@ export const combineAllSymptoms = (array = disease) => {
   let combinedSymptoms = [];
 
   array.forEach((disease) => {
-    combinedSymptoms = combinedSymptoms.concat(disease.symptoms);
+    for (let i = 0; i < disease.symptoms.length; i++) {
+      disease.symptoms[i] =
+        disease.symptoms[i].charAt(0).toUpperCase() +
+        disease.symptoms[i].toLowerCase().slice(1);
+
+      if (!combinedSymptoms.includes(disease.symptoms[i]))
+        combinedSymptoms.push(disease.symptoms[i]);
+    }
   });
 
   combinedSymptomsArr = combinedSymptoms;
