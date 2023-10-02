@@ -140,17 +140,8 @@ export async function getUserById(req, res, next) {
 
 export async function updateUser(req, res, next) {
   try {
-    const {
-      avatar,
-      firstname,
-      lastname,
-      mobile,
-      date_of_birth,
-      mobile_operator,
-      bank_name,
-      account_number,
-      occupation,
-    } = req.body;
+    const { avatar, firstname, lastname, mobile, date_of_birth, occupation } =
+      req.body;
 
     let user = await UserModel.findByIdAndUpdate(req.user._id, {
       avatar: avatar && avatar,
@@ -158,11 +149,6 @@ export async function updateUser(req, res, next) {
       lastname: lastname && lastname,
       mobile: mobile && mobile,
       date_of_birth: date_of_birth && date_of_birth,
-      reason: reason && reason,
-      mobile_operator: mobile_operator && mobile_operator,
-      bank_name: bank_name && bank_name,
-      account_number: account_number && account_number,
-      occupation: occupation && occupation,
     });
 
     if (!user) return res.status(BAD_REQUEST).json({ message: ITEM_NOT_FOUND });

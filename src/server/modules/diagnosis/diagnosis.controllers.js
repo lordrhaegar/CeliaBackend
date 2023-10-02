@@ -1,0 +1,23 @@
+import { BAD_REQUEST, SERVER_ERROR, SUCCESS } from "../../types/status_code.js";
+import { diagnoseAndReturnPercent } from "../../utils/diagnosis.js";
+
+export async function diagonise(req, res, next) {
+  try {
+    let { userSystoms } = req.body;
+
+    if (!Array.isArray(userSystoms) || userSystoms.length === 0) {
+      return res
+        .status(BAD_REQUEST)
+        .json({ message: "Value must be a non empty array" });
+    }
+
+    let diagnosisResult = diagnoseAndReturnPercent(userSystoms);
+
+    return res.status(SUCCESS).json({
+      message: "Dianosis successfull",
+      diagnosisResult,
+    });
+  } catch (error) {
+    return res.status(SERVER_ERROR).json({ message: error.message });
+  }
+}

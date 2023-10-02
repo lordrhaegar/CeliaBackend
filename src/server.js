@@ -15,6 +15,8 @@ connectDB();
 
 //Routes files
 import usersRoute from "./server/modules/auth/auth.route.js";
+import diagnosisRoute from "./server/modules/diagnosis/diagnosis.route.js";
+import { cleanUpDiagnosisArray } from "./server/utils/diagnosis.js";
 
 const app = express();
 
@@ -34,8 +36,12 @@ if (process.env.NODE_ENV === "development") {
 // Body parser
 app.use(express.json());
 
+//Run the data clean up function for disease
+cleanUpDiagnosisArray();
+
 //Mount routers
 app.use("/auth", usersRoute);
+app.use("/diagnose", diagnosisRoute);
 
 const PORT = process.env.PORT || 5000;
 

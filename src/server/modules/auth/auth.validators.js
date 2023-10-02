@@ -19,7 +19,6 @@ export const updateUserControllerValidator = {
     lastname: Joi.string().min(3).max(15),
     mobile: Joi.string().min(10).max(14),
     date_of_birth: Joi.date(),
-    occupation: Joi.string(),
   }),
 };
 
