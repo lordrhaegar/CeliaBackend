@@ -2,8 +2,9 @@ import express from "express";
 
 const router = express.Router();
 
-import { diagonise } from "./diagnosis.controllers.js";
+import { diagonise, getAllSymptoms } from "./diagnosis.controllers.js";
 
-router.post("/", diagonise);
+router.post("/diagnose", diagonise);
+router.get("/symptoms", getAllSymptoms);
 
 export default router;

@@ -244,3 +244,16 @@ export const diagnoseAndReturnPercent = (
 
   return diagnosisResult;
 };
+
+export let combinedSymptomsArr = [];
+export const combineAllSymptoms = (array = disease) => {
+  let combinedSymptoms = [];
+
+  array.forEach((disease) => {
+    combinedSymptoms = combinedSymptoms.concat(disease.symptoms);
+  });
+
+  combinedSymptomsArr = combinedSymptoms;
+
+  return;
+};
