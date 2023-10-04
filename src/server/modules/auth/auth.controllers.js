@@ -15,12 +15,7 @@ import { generateToken, getUserFromToken } from "../../utils/json_web_token.js";
 
 export async function register(req, res, next) {
   try {
-    const query = req.query;
-
-    const { refId } = query;
     let { firstname, lastname, email, password } = req.body;
-
-    const referralUser = await UserModel.findOne({ _id: refId });
 
     email = email.charAt(0).toUpperCase() + email.slice(1);
 
@@ -30,13 +25,7 @@ export async function register(req, res, next) {
       lastname: lastname[0].toUpperCase() + lastname.slice(1),
       email,
       password,
-      referral_user: referralUser ? referralUser._id : "",
     });
-
-    if (referralUser) {
-      referralUser.referral_count += 1;
-      await referralUser.save();
-    }
 
     const token = generateToken(user);
 
