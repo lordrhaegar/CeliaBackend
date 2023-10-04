@@ -21,6 +21,8 @@ var UserSchema = new Schema({
   },
   gender: {
     type: String,
+    Enum: ["Male", "Female"],
+    default: "Male",
     required: false,
   },
   occupation: {
@@ -96,39 +98,10 @@ var UserSchema = new Schema({
     default: "",
     hide: true,
   },
-  referral_count: {
-    type: Number,
-    default: 0,
-  },
-  referral_user: {
-    type: String,
-    require: false,
-  },
-  referral_link: {
-    type: String,
-    required: false,
-  },
-  referral_bonus: {
-    type: String,
-    required: false,
-  },
-  balance: {
-    type: Number,
-    required: false,
-  },
-  occupation: {
-    type: String,
-    required: false,
-  },
   address: {
     type: String,
     required: false,
   },
-});
-
-UserSchema.pre(/^(save)/, function () {
-  let self = this;
-  self.referralLink = `?refId=${self._id}`;
 });
 
 UserSchema.methods.matchPassword = async function (enteredPassword) {

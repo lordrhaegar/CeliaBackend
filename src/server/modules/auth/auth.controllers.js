@@ -1,3 +1,4 @@
+import User from "../../models/user_model.js";
 import UserModel from "../../models/user_model.js";
 import {
   BAD_REQUEST,
@@ -81,28 +82,14 @@ export async function updateUserAdmin(req, res, next) {
   try {
     const { userId } = req.params;
 
-    const {
-      avatar,
-      firstname,
-      lastname,
-      mobile,
-      date_of_birth,
-      mobile_operator,
-      bank_name,
-      account_number,
-      occupation,
-    } = req.body;
+    const { firstname, lastname, mobile, date_of_birth, gender } = req.body;
 
     let user = await UserModel.findByIdAndUpdate(userId, {
-      avatar,
-      firstname,
-      lastname,
+      firstname: firstname[0].toUpperCase() + firstname.slice(1),
+      lastname: lastname[0].toUpperCase() + lastname.slice(1),
       mobile,
       date_of_birth,
-      mobile_operator,
-      bank_name,
-      account_number,
-      occupation,
+      gender,
     });
 
     if (!user) return res.status(BAD_REQUEST).json({ message: ITEM_NOT_FOUND });
@@ -129,14 +116,13 @@ export async function getUserById(req, res, next) {
 
 export async function updateUser(req, res, next) {
   try {
-    const { avatar, firstname, lastname, mobile, date_of_birth, occupation } =
-      req.body;
+    const { firstname, lastname, mobile, date_of_birth, gender } = req.body;
 
     let user = await UserModel.findByIdAndUpdate(req.user._id, {
-      avatar: avatar && avatar,
-      firstname: firstname && firstname,
-      lastname: lastname && lastname,
+      firstname: firstname && firstname[0].toUpperCase() + firstname.slice(1),
+      lastname: lastname && lastname[0].toUpperCase() + firstname.slice(1),
       mobile: mobile && mobile,
+      gender: gender && gender,
       date_of_birth: date_of_birth && date_of_birth,
     });
 

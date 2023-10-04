@@ -14,10 +14,10 @@ export const registerControllerValidator = {
 // POST /api/auth/user/:userId
 export const updateUserControllerValidator = {
   body: Joi.object({
-    avatar: Joi.string(),
     firstname: Joi.string().min(3).max(15),
     lastname: Joi.string().min(3).max(15),
     mobile: Joi.string().min(10).max(14),
+    gender: Joi.string().valid("Male", "Female"),
     date_of_birth: Joi.date(),
   }),
 };
