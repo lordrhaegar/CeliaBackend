@@ -4,6 +4,7 @@ import connectDB from "./database/db.js";
 import colors from "colors";
 import morgan from "morgan";
 import cors from "cors";
+import fileUpload from "express-fileupload";
 
 // const color = require('color');
 
@@ -15,7 +16,10 @@ connectDB();
 
 //Routes files
 import usersRoute from "./server/modules/auth/auth.route.js";
+import doctorRoute from "./server/modules/doctor/doctor.route.js";
 import diagnosisRoute from "./server/modules/diagnosis/diagnosis.route.js";
+import uploadRoute from "./server/modules/upload/upload.route.js";
+
 import {
   cleanUpDiagnosisArray,
   combineAllSymptoms,
@@ -36,6 +40,9 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
+// initialize file upload
+app.use(fileUpload());
+
 // Body parser
 app.use(express.json());
 
@@ -47,7 +54,9 @@ combineAllSymptoms();
 
 //Mount routers
 app.use("/auth", usersRoute);
+app.use("/doctor", doctorRoute);
 app.use("/diagnosis", diagnosisRoute);
+app.use("/upload", uploadRoute);
 
 const PORT = process.env.PORT || 5000;
 

@@ -14,7 +14,6 @@ export const getUserFromToken = (req, res, next) => {
       res.status(BAD_REQUEST).send("A token is required for authentication");
     }
 
-    console.log(token);
     jwt.verify(token, process.env.JWT_SECRET, function (err, data) {
       if (err) {
         return res.status(BAD_REQUEST).json({ message: "Token Expired" });
@@ -24,7 +23,6 @@ export const getUserFromToken = (req, res, next) => {
       next();
     });
   } catch (error) {
-    console.log(error);
     return res.status(BAD_REQUEST).json({ message: error.message });
   }
 };

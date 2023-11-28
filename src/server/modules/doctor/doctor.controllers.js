@@ -1,4 +1,4 @@
-import UserModel from "../../models/user_model.js";
+import DoctorModel from "../../models/doctor_model.js";
 import {
   BAD_REQUEST,
   NOT_FOUND,
@@ -11,30 +11,31 @@ import {
   ITEM_NOT_FOUND,
   UPDATE_SUCCESS,
 } from "../../types/status_message.js";
-import { generateToken, getUserFromToken } from "../../utils/json_web_token.js";
+import { generateToken } from "../../utils/json_web_token.js";
 
 export async function register(req, res, next) {
   try {
-    let { firstname, lastname, email, password } = req.body;
+    let { firstname, lastname, email, password, license, id_card } = req.body;
 
     email = email.charAt(0).toUpperCase() + email.slice(1);
 
-    // Create user
-    const user = await UserModel.create({
+    // Create doctor
+    const doctor = await DoctorModel.create({
       firstname: firstname[0].toUpperCase() + firstname.slice(1),
       lastname: lastname[0].toUpperCase() + lastname.slice(1),
       email,
       password,
+      license,
+      id_card,
     });
 
-    const token = generateToken(user);
+    const token = generateToken(doctor);
 
-    // sendWelcomeMail(user.email, user.userName, email, password);
-
+    // sendWelcomeMail(doctor.email, doctor.doctorName, email, password);
     return res.status(SUCCESS).json({
-      message: "Successfully registered",
+      message: "Registration successful",
       token,
-      user,
+      doctor,
     });
   } catch (error) {
     return res.status(SERVER_ERROR).json({ message: error.message });
@@ -46,15 +47,15 @@ export async function login(req, res, next) {
     let { email, password } = req.body;
 
     if (!email || !password) {
-      return res
-        .status(BAD_REQUEST)
-        .json({ message: "Please provide an username or email and password" });
+      return res.status(BAD_REQUEST).json({
+        message: "Please provide your email and password",
+      });
     }
 
-    let user = await UserModel.findOne({ email });
+    let doctor = await DoctorModel.findOne({ email });
 
-    if (user) {
-      const isPasswordValid = await user.matchPassword(password);
+    if (doctor) {
+      const isPasswordValid = await doctor.matchPassword(password);
 
       if (!isPasswordValid) {
         return res
@@ -62,11 +63,11 @@ export async function login(req, res, next) {
           .json({ message: "email or password invalid" });
       }
 
-      const token = generateToken(user);
+      const token = generateToken(doctor);
 
       return res.status(SUCCESS).json({
         token,
-        user,
+        doctor,
         message: "Login successful",
       });
     }
@@ -77,21 +78,34 @@ export async function login(req, res, next) {
   }
 }
 
-export async function updateUserAdmin(req, res, next) {
+export async function updateDoctorAdmin(req, res, next) {
   try {
-    const { userId } = req.params;
+    const { doctorId } = req.params;
 
-    const { firstname, lastname, mobile, date_of_birth, gender } = req.body;
+    const {
+      firstname,
+      lastname,
+      gender,
+      license,
+      id_card,
+      is_verified,
+      ...rest
+    } = req.body;
 
-    let user = await UserModel.findByIdAndUpdate(userId, {
+    let doctor = await DoctorModel.findByIdAndUpdate(doctorId, {
       firstname: firstname[0].toUpperCase() + firstname.slice(1),
       lastname: lastname[0].toUpperCase() + lastname.slice(1),
       mobile,
       date_of_birth,
       gender,
+      license,
+      id_card,
+      is_verified,
+      ...rest,
     });
 
-    if (!user) return res.status(BAD_REQUEST).json({ message: ITEM_NOT_FOUND });
+    if (!doctor)
+      return res.status(BAD_REQUEST).json({ message: ITEM_NOT_FOUND });
 
     return res.status(SUCCESS).json({ message: UPDATE_SUCCESS });
   } catch (error) {
@@ -99,33 +113,34 @@ export async function updateUserAdmin(req, res, next) {
   }
 }
 
-export async function getUserById(req, res, next) {
+export async function getDoctorById(req, res, next) {
   try {
-    const { userId } = req.params;
+    const { doctorId } = req.params;
 
-    let user = await UserModel.findById(userId);
+    let doctor = await DoctorModel.findById(doctorId);
 
-    if (!user) return res.status(BAD_REQUEST).json({ message: ITEM_NOT_FOUND });
+    if (!doctor)
+      return res.status(BAD_REQUEST).json({ message: ITEM_NOT_FOUND });
 
-    return res.status(SUCCESS).json({ message: SUCCESS, user });
+    return res.status(SUCCESS).json({ message: SUCCESS, doctor });
   } catch (error) {
     return res.status(SERVER_ERROR).json({ message: error.message });
   }
 }
 
-export async function updateUser(req, res, next) {
+export async function updateDoctor(req, res, next) {
   try {
-    const { firstname, lastname, mobile, date_of_birth, gender } = req.body;
+    const { firstname, lastname, mobile, is_active } = req.body;
 
-    let user = await UserModel.findByIdAndUpdate(req.user._id, {
+    let doctor = await DoctorModel.findByIdAndUpdate(req.doctor._id, {
       firstname: firstname && firstname[0].toUpperCase() + firstname.slice(1),
       lastname: lastname && lastname[0].toUpperCase() + firstname.slice(1),
+      is_active: is_active && is_active,
       mobile: mobile && mobile,
-      gender: gender && gender,
-      date_of_birth: date_of_birth && date_of_birth,
     });
 
-    if (!user) return res.status(BAD_REQUEST).json({ message: ITEM_NOT_FOUND });
+    if (!doctor)
+      return res.status(BAD_REQUEST).json({ message: ITEM_NOT_FOUND });
 
     return res.status(SUCCESS).json({ message: UPDATE_SUCCESS });
   } catch (error) {
@@ -133,13 +148,14 @@ export async function updateUser(req, res, next) {
   }
 }
 
-export async function getLoggedInUser(req, res, next) {
+export async function getLoggedInDoctor(req, res, next) {
   try {
-    let user = await UserModel.findById(req.user._id);
+    let doctor = await DoctorModel.findById(req.doctor._id);
 
-    if (!user) return res.status(BAD_REQUEST).json({ message: ITEM_NOT_FOUND });
+    if (!doctor)
+      return res.status(BAD_REQUEST).json({ message: ITEM_NOT_FOUND });
 
-    return res.status(SUCCESS).json({ message: FETCHED_SUCCESSFUL, user });
+    return res.status(SUCCESS).json({ message: FETCHED_SUCCESSFUL, doctor });
   } catch (error) {
     return res.status(SERVER_ERROR).json({ message: error.message });
   }
@@ -149,17 +165,17 @@ export async function updatePassword(req, res, next) {
   try {
     const { password, newPassword } = req.body;
 
-    const user = await UserModel.findById(req.user._id);
+    const doctor = await DoctorModel.findById(req.doctor._id);
 
-    if (!user) {
+    if (!doctor) {
       return res.status(BAD_REQUEST).json({ message: ITEM_NOT_FOUND });
     }
 
-    const isPasswordValid = await user.matchPassword(password);
+    const isPasswordValid = await doctor.matchPassword(password);
 
     if (isPasswordValid) {
-      user.password = newPassword;
-      await user.save();
+      doctor.password = newPassword;
+      await doctor.save();
 
       return res.status(SUCCESS).json({ message: UPDATE_SUCCESS });
     }
@@ -170,28 +186,29 @@ export async function updatePassword(req, res, next) {
   }
 }
 
-export async function getUsers(req, res, next) {
+export async function getDoctors(req, res, next) {
   try {
-    const users = await UserModel.find();
+    const doctors = await DoctorModel.find();
 
-    if (!users)
+    if (!doctors)
       return res.status(BAD_REQUEST).json({ message: ITEM_NOT_FOUND });
 
-    return res.status(SUCCESS).json({ message: FETCHED_SUCCESSFUL, users });
+    return res.status(SUCCESS).json({ message: FETCHED_SUCCESSFUL, doctors });
   } catch (error) {
     return res.status(SERVER_ERROR).json({ message: error.message });
   }
 }
 
-export async function deleteUser(req, res, next) {
+export async function deleteDoctor(req, res, next) {
   try {
-    let { user_id } = req.body;
+    let { doctor_id } = req.body;
 
-    let user = await UserModel.findById(user_id);
+    let doctor = await DoctorModel.findById(doctor_id);
 
-    if (!user) return res.status(BAD_REQUEST).json({ message: ITEM_NOT_FOUND });
+    if (!doctor)
+      return res.status(BAD_REQUEST).json({ message: ITEM_NOT_FOUND });
 
-    let response = await UserModel.findByIdAndDelete(user._id);
+    let response = await DoctorModel.findByIdAndDelete(doctor._id);
 
     if (!response)
       return res.status(BAD_REQUEST).json({ message: ITEM_NOT_FOUND });
