@@ -83,12 +83,14 @@ export async function updateDoctorAdmin(req, res, next) {
     const { doctorId } = req.params;
 
     const {
+      profile_img,
       firstname,
       lastname,
       gender,
       license,
       id_card,
       is_verified,
+      booking_link,
       ...rest
     } = req.body;
 
@@ -98,9 +100,11 @@ export async function updateDoctorAdmin(req, res, next) {
       mobile,
       date_of_birth,
       gender,
+      profile_img,
       license,
       id_card,
       is_verified,
+      booking_link,
       ...rest,
     });
 
@@ -130,13 +134,26 @@ export async function getDoctorById(req, res, next) {
 
 export async function updateDoctor(req, res, next) {
   try {
-    const { firstname, lastname, mobile, is_active } = req.body;
+    const {
+      firstname,
+      lastname,
+      mobile,
+      is_active,
+      profile_img,
+      booking_link,
+      speciality,
+      gender,
+    } = req.body;
 
-    let doctor = await DoctorModel.findByIdAndUpdate(req.doctor._id, {
+    let doctor = await DoctorModel.findByIdAndUpdate(req.user._id, {
       firstname: firstname && firstname[0].toUpperCase() + firstname.slice(1),
       lastname: lastname && lastname[0].toUpperCase() + firstname.slice(1),
       is_active: is_active && is_active,
       mobile: mobile && mobile,
+      profile_img: profile_img && profile_img,
+      booking_link: booking_link && booking_link,
+      speciality: speciality && speciality,
+      gender: gender && gender,
     });
 
     if (!doctor)
@@ -189,6 +206,19 @@ export async function updatePassword(req, res, next) {
 export async function getDoctors(req, res, next) {
   try {
     const doctors = await DoctorModel.find();
+
+    if (!doctors)
+      return res.status(BAD_REQUEST).json({ message: ITEM_NOT_FOUND });
+
+    return res.status(SUCCESS).json({ message: FETCHED_SUCCESSFUL, doctors });
+  } catch (error) {
+    return res.status(SERVER_ERROR).json({ message: error.message });
+  }
+}
+
+export async function getActiveDoctors(req, res, next) {
+  try {
+    const doctors = await DoctorModel.find({ is_active: true });
 
     if (!doctors)
       return res.status(BAD_REQUEST).json({ message: ITEM_NOT_FOUND });

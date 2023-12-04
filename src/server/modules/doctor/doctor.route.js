@@ -18,6 +18,7 @@ import {
   getDoctorById,
   getLoggedInDoctor,
   deleteDoctor,
+  getActiveDoctors,
 } from "./doctor.controllers.js";
 import validateSchema from "../../middleware/validate_schema.js";
 import { getUserFromToken } from "../../utils/json_web_token.js";
@@ -48,7 +49,8 @@ router.put(
 
 router.put("/updatepassword", getUserFromToken, updatePassword);
 
-router.get("/doctors", getDoctors);
+router.get("/alldoctors", getDoctors);
+router.get("/activedoctors", getActiveDoctors);
 
 router.get("/loggedindoctor", getUserFromToken, getLoggedInDoctor);
 

@@ -6,7 +6,7 @@ import crypto from "crypto";
 const Schema = mongoose.Schema;
 
 var DoctorSchema = new Schema({
-  avatar: {
+  profile_img: {
     type: String,
   },
   firstname: {
@@ -21,6 +21,33 @@ var DoctorSchema = new Schema({
     type: String,
     Enum: ["Male", "Female"],
     default: "Male",
+    required: false,
+  },
+  speciality: {
+    type: String,
+    Enum: [
+      "Allergy and immunology",
+      "Anesthesiology",
+      "Dermatology",
+      "Diagnostic radiology",
+      "Emergency medicine",
+      "Family medicine",
+      "Internal medicine",
+      "Medical genetics",
+      "Neurology",
+      "Nuclear medicine",
+      "Obstetrics and gynecology",
+      "Ophthalmology",
+      "Pathology",
+      "Pediatrics",
+      "Physical medicine and rehabilitation",
+      "Preventive medicine",
+      "Psychiatry",
+      "Radiation oncology",
+      "Surgery",
+      "Urology",
+    ],
+    default: "Family medicine",
     required: false,
   },
   license: {
@@ -81,6 +108,9 @@ var DoctorSchema = new Schema({
   is_active: {
     type: Boolean,
     default: false,
+  },
+  booking_link: {
+    type: String,
   },
   is_otp: {
     type: Boolean,
