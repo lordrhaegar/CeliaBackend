@@ -8,7 +8,16 @@ import {
 } from "firebase/storage";
 
 import { BAD_REQUEST, SERVER_ERROR } from "../../types/status_code.js";
-import { firebaseConfig } from "../../config/firebase.config.js";
+
+export const firebaseConfig = {
+  apiKey: "AIzaSyCmL8vwRbhBbAtaCtG9WWyqBZpyEhgqWAA",
+  authDomain: "celiamedapp.firebaseapp.com",
+  projectId: "celiamedapp",
+  storageBucket: "celiamedapp.appspot.com",
+  messagingSenderId: "148587749422",
+  appId: "1:148587749422:web:68780c916f85ca37b3bfbf",
+  measurementId: "G-K5BXP79RXG",
+};
 
 //initialize firebase
 initializeApp(firebaseConfig);
