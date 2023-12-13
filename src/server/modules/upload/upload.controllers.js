@@ -49,6 +49,8 @@ export async function uploadfile(req, res, next) {
     const metadata = {
       contentType: req.files.img.mimetype,
     };
+
+    console.log(req.files.img.data);
     // Upload the file in the bucket storage
     const snapshot = await uploadBytesResumable(
       storageRef,
