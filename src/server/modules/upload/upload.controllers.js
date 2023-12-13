@@ -55,6 +55,8 @@ export async function uploadfile(req, res, next) {
       req.files.img.data,
       metadata
     );
+
+    console.log(snapshot);
     //by using uploadBytesResumable we can control the progress of uploading like pause, resume, cancel
     // Grab the public url
     const downloadURL = await getDownloadURL(snapshot.ref);
