@@ -41,7 +41,7 @@ if (process.env.NODE_ENV === "development") {
 }
 
 // initialize file upload
-app.use(fileUpload());
+// app.use(fileUpload());
 
 // Body parser
 app.use(express.json());

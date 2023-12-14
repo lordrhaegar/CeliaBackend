@@ -6,6 +6,7 @@ import {
   uploadBytesResumable,
   getDownloadURL,
 } from "firebase/storage";
+import formidable from "formidable-serverless";
 
 import { BAD_REQUEST, SERVER_ERROR } from "../../types/status_code.js";
 
@@ -25,49 +26,91 @@ initializeApp(firebaseConfig);
 // Initialize Cloud Storage and get a reference to the service
 const storage = getStorage();
 
+import admin from "firebase-admin";
+
+import serviceAccount from "./celiamedapp-firebase-adminsdk-g6c7f-2ac8e74a1f.json" assert { type: "json" };
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  storageBucket: "gs://celiamedapp.appspot.com",
+});
+
 export async function uploadfile(req, res, next) {
+  const form = new formidable.IncomingForm({ multiples: true });
   try {
-    const types = ["image/png", "image/jpeg"];
+    form.parse(req, async (err, fields, files) => {
+      var downLoadPath =
+        "https://firebasestorage.googleapis.com/v0/b/celiamedapp.appspot.com/o/";
 
-    if (!req.files.img || !types.includes(req.files.img.mimetype)) {
-      return res.status(BAD_REQUEST).json({
-        message: "File type must be png or jpeg",
+      const types = ["image/png", "image/jpeg"];
+
+      console.log(files.img);
+
+      if (err) {
+        return res.status(400).json({
+          message: "There was an error parsing the files",
+          data: {},
+          error: err,
+        });
+      }
+
+      if (!files.img || !types.includes(files.img.type)) {
+        return res.status(BAD_REQUEST).json({
+          message: "File type must be png or jpeg",
+        });
+      }
+      if (files.img.size / 1000000 > 3) {
+        return res.status(BAD_REQUEST).json({
+          message: "File size must be less than 3 mb",
+        });
+      }
+
+      const dateTime = giveCurrentDateTime();
+      const storageRef = sRef(
+        storage,
+        `files/${files.img.name + "  " + dateTime}`
+      );
+      // Create file metadata including the content type
+      const metadata = {
+        contentType: files.img.type,
+      };
+
+      console.log(files.img.path);
+      // Upload the file in the bucket storage
+      // const snapshot = await uploadBytesResumable(
+      //   storageRef,
+      //   req.files.img.data,
+      //   metadata
+      // );
+
+      const bucket = admin.storage().bucket();
+
+      const imageResponse = await bucket.upload(files.img.path, {
+        destination: `files/${files.img.name + "  " + dateTime}`,
+        resumable: true,
+        metadata: {
+          contentType: files.img.type,
+        },
       });
-    }
-    if (req.files.img.size / 1000000 > 3) {
-      return res.status(BAD_REQUEST).json({
-        message: "File size must be less than 3 mb",
+
+      // console.log(snapshot);
+      //by using uploadBytesResumable we can control the progress of uploading like pause, resume, cancel
+      // Grab the public url
+      // const downloadURL = await getDownloadURL(snapshot.ref);
+
+      let imageUrl =
+        downLoadPath +
+        encodeURIComponent(imageResponse[0].name) +
+        "?alt=media&token=";
+
+      console.log(imageUrl);
+
+      return res.send({
+        message: "file upload successful",
+        name: files.img.name,
+        type: files.img.mimetype,
+        downloadURL: imageUrl,
       });
-    }
-
-    const dateTime = giveCurrentDateTime();
-    const storageRef = sRef(
-      storage,
-      `files/${req.files.img.name + "  " + dateTime}`
-    );
-    // Create file metadata including the content type
-    const metadata = {
-      contentType: req.files.img.mimetype,
-    };
-
-    console.log(req.files.img.data);
-    // Upload the file in the bucket storage
-    const snapshot = await uploadBytesResumable(
-      storageRef,
-      req.files.img.data,
-      metadata
-    );
-
-    console.log(snapshot);
-    //by using uploadBytesResumable we can control the progress of uploading like pause, resume, cancel
-    // Grab the public url
-    const downloadURL = await getDownloadURL(snapshot.ref);
-
-    return res.send({
-      message: "file upload successful",
-      name: req.files.img.name,
-      type: req.files.img.mimetype,
-      downloadURL: downloadURL,
     });
   } catch (error) {
     return res.status(SERVER_ERROR).json({ message: error.message });
