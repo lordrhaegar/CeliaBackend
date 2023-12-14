@@ -28,7 +28,7 @@ const storage = getStorage();
 
 import admin from "firebase-admin";
 
-import serviceAccount from "./celiamedapp-firebase-adminsdk-g6c7f-2ac8e74a1f.json";
+import serviceAccount from "./celiamedapp-firebase-adminsdk-g6c7f-2ac8e74a1f.json" assert { type: "json" };
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
